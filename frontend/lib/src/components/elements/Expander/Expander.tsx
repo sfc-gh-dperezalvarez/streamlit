@@ -15,31 +15,29 @@
  */
 
 import React, { ReactElement, useEffect, useState } from "react"
-import classNames from "classnames"
-import {
-  StatelessAccordion as Accordion,
-  Panel,
-  SharedStylePropsArg,
-} from "baseui/accordion"
-import { useTheme } from "@emotion/react"
 import { ExpandMore, ExpandLess } from "@emotion-icons/material-outlined"
 import { Block as BlockProto } from "@streamlit/lib/src/proto"
 
 import Icon from "@streamlit/lib/src/components/shared/Icon"
 import StreamlitMarkdown from "@streamlit/lib/src/components/shared/StreamlitMarkdown"
 
-import { StyledExpandableContainer } from "./styled-components"
+import {
+  StyledExpandableContainer,
+  StyledSummary,
+  StyledSummaryHeading,
+  StyledDetailsPanel,
+  StyledEmptyDetailsPanel,
+  StyledDetails,
+} from "./styled-components"
 
 export interface ExpanderProps {
   element: BlockProto.Expandable
-  widgetsDisabled: boolean
   isStale: boolean
   empty: boolean
 }
 
 const Expander: React.FC<ExpanderProps> = ({
   element,
-  widgetsDisabled,
   isStale,
   empty,
   children,
@@ -60,126 +58,30 @@ const Expander: React.FC<ExpanderProps> = ({
   }, [label, initialExpanded])
 
   const toggle = (): void => setExpanded(!expanded)
-  const { colors, radii, spacing, fontSizes } = useTheme()
 
   return (
     <StyledExpandableContainer data-testid="stExpander">
-      <Accordion
-        onChange={toggle}
-        expanded={expanded ? ["panel"] : []}
-        disabled={widgetsDisabled}
-        overrides={{
-          Content: {
-            style: ({ $expanded }: SharedStylePropsArg) => ({
-              backgroundColor: colors.transparent,
-              marginLeft: spacing.none,
-              marginRight: spacing.none,
-              marginTop: spacing.none,
-              marginBottom: spacing.none,
-              overflow: "visible",
-              paddingLeft: spacing.lg,
-              paddingRight: spacing.lg,
-              paddingTop: 0,
-              paddingBottom: $expanded ? spacing.lg : 0,
-              borderTopStyle: "none",
-              borderBottomStyle: "none",
-              borderRightStyle: "none",
-              borderLeftStyle: "none",
-            }),
-            props: { className: "streamlit-expanderContent" },
-          },
-          // Allow fullscreen button to overflow the expander
-          ContentAnimationContainer: {
-            style: ({ $expanded }: SharedStylePropsArg) => ({
-              overflow: $expanded ? "visible" : "hidden",
-            }),
-          },
-          PanelContainer: {
-            style: () => ({
-              marginLeft: `${spacing.none} !important`,
-              marginRight: `${spacing.none} !important`,
-              marginTop: `${spacing.none} !important`,
-              marginBottom: `${spacing.none} !important`,
-              paddingLeft: `${spacing.none} !important`,
-              paddingRight: `${spacing.none} !important`,
-              paddingTop: `${spacing.none} !important`,
-              paddingBottom: `${spacing.none} !important`,
-              borderTopStyle: "none !important",
-              borderBottomStyle: "none !important",
-              borderRightStyle: "none !important",
-              borderLeftStyle: "none !important",
-            }),
-          },
-          Header: {
-            style: ({ $disabled }: SharedStylePropsArg) => ({
-              marginBottom: spacing.none,
-              marginLeft: spacing.none,
-              marginRight: spacing.none,
-              marginTop: spacing.none,
-              backgroundColor: colors.transparent,
-              color: $disabled ? colors.disabled : colors.bodyText,
-              fontSize: fontSizes.sm,
-              borderTopStyle: "none",
-              borderBottomStyle: "none",
-              borderRightStyle: "none",
-              borderLeftStyle: "none",
-              paddingBottom: spacing.md,
-              paddingTop: spacing.md,
-              paddingRight: spacing.lg,
-              paddingLeft: spacing.lg,
-              ...(isStale
-                ? {
-                    opacity: 0.33,
-                    transition: "opacity 1s ease-in 0.5s",
-                  }
-                : {}),
-            }),
-            props: {
-              className: "streamlit-expanderHeader",
-              isStale,
-            },
-          },
-          ToggleIcon: {
-            style: ({ $disabled }: SharedStylePropsArg) => ({
-              color: $disabled ? colors.disabled : colors.bodyText,
-            }),
-            // eslint-disable-next-line react/display-name
-            component: () => {
-              if (expanded) {
-                return <Icon content={ExpandLess} size="lg" />
-              }
-              return <Icon content={ExpandMore} size="lg" />
-            },
-          },
-          Root: {
-            props: {
-              className: classNames("streamlit-expander", { empty }),
-              isStale,
-            },
-            style: {
-              borderStyle: "solid",
-              borderWidth: "1px",
-              borderColor: colors.fadedText10,
-              borderRadius: radii.lg,
-              ...(isStale
-                ? {
-                    borderColor: colors.fadedText05,
-                    transition: "border 1s ease-in 0.5s",
-                  }
-                : {}),
-            },
-          },
-        }}
+      <StyledDetails
+        isStale={isStale}
+        onToggle={toggle}
+        open={initialExpanded}
       >
-        <Panel
-          title={
+        <StyledSummary>
+          <StyledSummaryHeading>
             <StreamlitMarkdown source={label} allowHTML={false} isLabel />
-          }
-          key="panel"
-        >
-          {children}
-        </Panel>
-      </Accordion>
+          </StyledSummaryHeading>
+          {expanded ? (
+            <Icon content={ExpandLess} size="lg" />
+          ) : (
+            <Icon content={ExpandMore} size="lg" />
+          )}
+        </StyledSummary>
+        {!empty ? (
+          <StyledDetailsPanel>{children}</StyledDetailsPanel>
+        ) : (
+          <StyledEmptyDetailsPanel>empty</StyledEmptyDetailsPanel>
+        )}
+      </StyledDetails>
     </StyledExpandableContainer>
   )
 }

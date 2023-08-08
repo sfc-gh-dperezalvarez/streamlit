@@ -57,7 +57,8 @@ const BlockNodeRenderer = (props: BlockPropsWithWidth): ReactElement => {
   if (
     node.isEmpty &&
     !node.deltaBlock.column &&
-    !node.deltaBlock.chatMessage
+    !node.deltaBlock.chatMessage &&
+    !node.deltaBlock.expandable
   ) {
     return <></>
   }
@@ -78,7 +79,6 @@ const BlockNodeRenderer = (props: BlockPropsWithWidth): ReactElement => {
       <Expander
         empty={node.isEmpty}
         isStale={isStale}
-        widgetsDisabled={props.widgetsDisabled}
         element={node.deltaBlock.expandable as BlockProto.Expandable}
       >
         {child}
