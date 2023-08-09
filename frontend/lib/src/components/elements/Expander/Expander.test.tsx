@@ -33,7 +33,6 @@ const getProps = (
     expanded: true,
     ...elementProps,
   }),
-  widgetsDisabled: false,
   isStale: false,
   empty: false,
   ...props,
